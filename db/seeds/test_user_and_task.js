@@ -10,6 +10,6 @@ exports.seed = async function(knex) {
     {name: 'user01', password: 'password'}
   ]);
   await knex('tasks').insert([
-    {user_id: 1, content: 'テスト'}
+   {user_id: 1, content: 'テスト'}
   ]);
 };
