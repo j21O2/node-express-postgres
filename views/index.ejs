@@ -223,7 +223,7 @@
     // ページ読み込み時にテーマを適用
     applySavedTheme();
 
-    // メッセージを3秒ごとに切り替え
+    // メッセージを0.4秒ごとに切り替え
     setInterval(function() {
       if (bodyElement.classList.contains('dark-mode') && messageDisplayCount < maxDisplayCount) {
         displayNextMessage();
