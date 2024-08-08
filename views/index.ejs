@@ -2,9 +2,44 @@
 <html>
 <head>
   <title><%= title %></title>
- 
+
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
         integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <style>
+    body.dark-mode {
+      background-color: #333;
+      color: #fff;
+    }
+
+    .btn-dark-mode {
+      margin-top: 10px;
+    }
+
+    body.light-mode {
+      background-color: #fff;
+      color: #000;
+    }
+
+    .dark-mode-message {
+      text-align: center;
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 14px;
+      color: #fff;
+      display: none; /* 初期状態では非表示 */
+      margin-top: 50px; /* メッセージを下に移動 */
+    }
+
+    /* 中央に配置するためのスタイル */
+    .message-container {
+      position: fixed;
+      bottom: 20px; /* 下から20pxの位置に固定 */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      padding: 10px;
+    }
+  </style>
 </head>
 <body>
   <%- include('./header'); %>
@@ -22,12 +57,24 @@
         <div class="col-md-6">
           <ul>
             <% for(let todo of todos){ %>
-              <li><span><%= todo.content %></span></li>
+              <li>
+                <span><%= todo.content %></span>
+                <form action="/delete/<%= todo.id %>" method="post" style="display:inline;">
+                  <button type="submit" class="btn btn-danger btn-sm">削除</button>
+                </form>
+              </li>
             <% } %>
           </ul>
         </div>
       </div>
+      <button class="btn btn-secondary btn-dark-mode" id="themeToggle">ダークモードに切り替え</button>
     </div>
+
+    <!-- ダークモード時のメッセージ -->
+    <div class="message-container">
+      <pre class="dark-mode-message" id="darkModeMessage"></pre>
+    </div>
+
   <% } else { %>
     <h1>Welcome to the TodoApp</h1>
     <a class="btn btn-primary" href="/signup" role="button">Sign up now!</a>
@@ -41,5 +88,148 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
           integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
           crossorigin="anonymous"></script>
+  <script>
+    const toggleButton = document.getElementById('themeToggle');
+    const bodyElement = document.body;
+    const darkModeMessage = document.getElementById('darkModeMessage');
+
+    const messages = [
+      `   
+   :::::::::::
+     :+:
+    +:+
+   +#+
+  +#+
+ #+#
+###
+
+`,
+  `:::::::::::        ::::::::
+     :+:           :+:    :+:
+    +:+           +:+    +:+
+   +#+           +#+    +:+
+  +#+           +#+    +#+
+ #+#           #+#    #+#
+###            ########
+                                                         
+`,
+  `:::::::::::        ::::::::        :::::::::
+     :+:           :+:    :+:       :+:    :+:
+    +:+           +:+    +:+       +:+    +:+
+   +#+           +#+    +:+       +#+    +:+
+  +#+           +#+    +#+       +#+    +#+
+ #+#           #+#    #+#       #+#    #+#
+###            ########        #########
+`,
+`
+  :::::::::::        ::::::::        :::::::::        ::::::::
+     :+:           :+:    :+:       :+:    :+:      :+:    :+:
+    +:+           +:+    +:+       +:+    +:+      +:+    +:+
+   +#+           +#+    +:+       +#+    +:+      +#+    +:+
+  +#+           +#+    +#+       +#+    +#+      +#+    +#+
+ #+#           #+#    #+#       #+#    #+#      #+#    #+#
+###            ########        #########        ########
+`,
+`
+  :::::::::::        ::::::::        :::::::::        ::::::::        :::
+     :+:           :+:    :+:       :+:    :+:      :+:    :+:       :+:
+    +:+           +:+    +:+       +:+    +:+      +:+    +:+       +:+
+   +#+           +#+    +:+       +#+    +:+      +#+    +:+       +#+
+  +#+           +#+    +#+       +#+    +#+      +#+    +#+       +#+
+ #+#           #+#    #+#       #+#    #+#      #+#    #+#       #+#
+      ###            ########        #########        ########        ##########
+`,
+`
+   :::::::::::        ::::::::        :::::::::        ::::::::        :::         :::::::::::
+     :+:           :+:    :+:       :+:    :+:      :+:    :+:       :+:             :+:
+  +:+           +:+    +:+       +:+    +:+      +:+    +:+       +:+             +:+
+   +#+           +#+    +:+       +#+    +:+      +#+    +:+       +#+             +#+
+  +#+           +#+    +#+       +#+    +#+      +#+    +#+       +#+             +#+
+ #+#           #+#    #+#       #+#    #+#      #+#    #+#       #+#             #+#
+  ###            ########        #########        ########        ##########  ###########
+`,
+`
+    :::::::::::        ::::::::        :::::::::        ::::::::        :::         :::::::::::        ::::::::
+     :+:           :+:    :+:       :+:    :+:      :+:    :+:       :+:             :+:           :+:    :+:
+    +:+           +:+    +:+       +:+    +:+      +:+    +:+       +:+             +:+           +:+
+   +#+           +#+    +:+       +#+    +:+      +#+    +:+       +#+             +#+           +#++:++#++
+  +#+           +#+    +#+       +#+    +#+      +#+    +#+       +#+             +#+                  +#+
+ #+#           #+#    #+#       #+#    #+#      #+#    #+#       #+#             #+#           #+#    #+#
+###            ########        #########        ########        ##########  ###########        ########
+`,
+`
+   :::::::::::        ::::::::        :::::::::        ::::::::        :::         :::::::::::        ::::::::    :::::::::::
+     :+:           :+:    :+:       :+:    :+:      :+:    :+:       :+:             :+:           :+:    :+:       :+:
+    +:+           +:+    +:+       +:+    +:+      +:+    +:+       +:+             +:+           +:+              +:+
+   +#+           +#+    +:+       +#+    +:+      +#+    +:+       +#+             +#+           +#++:++#++       +#+
+  +#+           +#+    +#+       +#+    +#+      +#+    +#+       +#+             +#+                  +#+       +#+
+ #+#           #+#    #+#       #+#    #+#      #+#    #+#       #+#             #+#           #+#    #+#       #+#
+###            ########        #########        ########        ##########  ###########        ########        ###
+`,
+
+    ];
+
+    let currentMessageIndex = 0;
+    let messageDisplayCount = 0; // メッセージ表示回数をカウントする変数
+    const maxDisplayCount = 8; // メッセージを表示する最大回数
+
+    function displayNextMessage() {
+      if (messageDisplayCount < maxDisplayCount) {
+        darkModeMessage.textContent = messages[currentMessageIndex];
+        currentMessageIndex = (currentMessageIndex + 1) % messages.length;
+        messageDisplayCount++;
+      } else {
+        darkModeMessage.style.display = 'none'; // 最大回数に達したらメッセージを非表示
+      }
+    }
+
+    function applySavedTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        bodyElement.classList.add('dark-mode');
+        toggleButton.textContent = 'ライトモードに切り替え';
+        darkModeMessage.style.display = 'block';
+        messageDisplayCount = 0; // テーマがダークモードに設定されたときにカウントをリセット
+        displayNextMessage();
+      } else {
+        bodyElement.classList.add('light-mode');
+        toggleButton.textContent = 'ダークモードに切り替え';
+        darkModeMessage.style.display = 'none';
+      }
+    }
+
+    function toggleDarkMode() {
+      if (bodyElement.classList.contains('light-mode')) {
+        bodyElement.classList.remove('light-mode');
+        bodyElement.classList.add('dark-mode');
+        toggleButton.textContent = 'ライトモードに切り替え';
+        localStorage.setItem('theme', 'dark');
+        darkModeMessage.style.display = 'block';
+        messageDisplayCount = 0; // テーマがダークモードに設定されたときにカウントをリセット
+        displayNextMessage();
+      } else {
+        bodyElement.classList.remove('dark-mode');
+        bodyElement.classList.add('light-mode');
+        toggleButton.textContent = 'ダークモードに切り替え';
+        localStorage.setItem('theme', 'light');
+        darkModeMessage.style.display = 'none';
+      }
+    }
+
+    toggleButton.addEventListener('click', function() {
+      toggleDarkMode();
+    });
+
+    // ページ読み込み時にテーマを適用
+    applySavedTheme();
+
+    // メッセージを3秒ごとに切り替え
+    setInterval(function() {
+      if (bodyElement.classList.contains('dark-mode') && messageDisplayCount < maxDisplayCount) {
+        displayNextMessage();
+      }
+    }, 400); // 400ms ごとにメッセージを切り替え
+  </script>
   </body>
 </html>
+
